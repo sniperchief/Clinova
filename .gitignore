@@ -1,0 +1,25 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.key
+keystore/
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/31337/
+contracts/broadcast/**/dry-run/
+
+# Node
+node_modules/
+dist/
+.next/
+coverage/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
