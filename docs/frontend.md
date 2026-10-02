@@ -87,6 +87,10 @@ npm run dev            # http://localhost:5173
 
 Production build: `npm run build` (output in `apps/web/dist`, a static site), preview with `npm run preview`. When hosting, rewrite unknown paths to `index.html` (client-side routing).
 
+### Deploying (Vercel)
+
+`apps/web/vercel.json` configures the build (`npm run build` → `dist`), the single-page-app fallback (every path serves `index.html`, so links like `/requests/6` survive a reload), long-lived caching for hashed assets, and basic security headers. In Vercel: import the GitHub repo, set **Root Directory** to `apps/web`, and deploy. Optionally set `VITE_ARB_SEPOLIA_RPC_URL` (see below). Any static host works the same way with an equivalent fallback rule.
+
 ### Environment variables
 
 | Variable | Required | Meaning |
