@@ -174,11 +174,8 @@ export function Landing() {
             </p>
             <div className="row" style={{ gap: 16 }}>
               <Link to="/discover" className="btn btn-primary">
-                Explore Healthcare Capacity
+                Discover
               </Link>
-              <a href="#how" className="btn btn-ghost">
-                See How Clinova Works
-              </a>
             </div>
           </div>
         </div>
@@ -428,7 +425,7 @@ export function Landing() {
           </p>
           <div className="row" style={{ justifyContent: 'center', gap: 16 }}>
             <Link to="/discover" className="btn btn-primary">
-              Explore Healthcare Capacity
+              Discover
             </Link>
             <Link to="/provider" className="btn btn-ghost">
               Become a provider
