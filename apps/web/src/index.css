@@ -1167,8 +1167,8 @@ footer.footer a:hover {
 .hero-photo {
   min-height: min(92vh, 900px);
   display: flex;
-  align-items: flex-end;
-  padding: 160px 0 152px;
+  align-items: center;
+  padding: 64px 0 152px;
   background: var(--canvas);
 }
 
@@ -1253,7 +1253,7 @@ footer.footer a:hover {
 @media (max-width: 980px) {
   .hero-photo {
     min-height: 0;
-    padding: 120px 0 128px;
+    padding: 64px 0 128px;
   }
   .hero-media img {
     object-position: 72% 30%;
@@ -1404,6 +1404,204 @@ footer.footer a:hover {
   .how-head {
     grid-template-columns: minmax(0, 1fr);
     gap: 32px;
+  }
+}
+
+/* ------------------------------------------------------------------ positioning sections */
+
+/* The headline is a full sentence, so it runs smaller than the 96px display size. */
+.hero h1.hero-title {
+  font-size: 64px;
+  line-height: 1.08;
+  margin-top: 16px;
+}
+
+.band[id] {
+  scroll-margin-top: 64px;
+}
+
+/* Layered model: applications → Clinova → capacity → services → protocol guarantees. */
+.layer-stack {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.layer-stack li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 18px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+.layer-stack li + li::before {
+  content: '↓';
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  color: var(--text-faint);
+}
+
+.layer-stack li.is-core {
+  border-color: var(--mint);
+  background: var(--surface-2);
+}
+
+.layer-stack strong {
+  font-weight: 500;
+}
+
+.layer-stack li.is-core strong {
+  color: var(--mint);
+}
+
+.layer-stack span {
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+/* Telemedicine journey: eight short steps that wrap on narrow screens. */
+.journey {
+  list-style: none;
+  margin: 56px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.journey li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface-1);
+  font-size: 15px;
+}
+
+.journey .n {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--mint);
+}
+
+/* DePIN: providers → network → applications. */
+.depin {
+  list-style: none;
+  margin: 48px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.depin li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface-1);
+}
+
+.depin li + li::before {
+  content: '→';
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+}
+
+.depin li.is-core {
+  border-color: var(--mint);
+  background: var(--surface-2);
+}
+
+.depin strong {
+  font-size: 20px;
+  font-weight: 450;
+}
+
+.depin span {
+  font-size: 13px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+}
+
+.depin p {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: var(--text-body);
+}
+
+.rwa-line {
+  margin: 28px 0 0;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.why-grid {
+  margin-top: 48px;
+}
+
+.audience-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.audience-card p {
+  margin: 0;
+}
+
+.audience-card .link {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+@media (max-width: 980px) {
+  .hero h1.hero-title {
+    font-size: 46px;
+  }
+  .journey {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .depin {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .depin li + li::before {
+    content: '↓';
+    left: 50%;
+    top: -26px;
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1.hero-title {
+    font-size: 36px;
+  }
+  .journey {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rwa-line {
+    font-size: 19px;
   }
 }
 
@@ -2860,5 +3058,140 @@ footer.footer .logo-img {
   }
   .intro-text {
     font-size: 16px;
+  }
+}
+
+/* ================================================================== mobile navigation */
+
+.mobile-menu {
+  display: none;
+}
+
+.menu-btn {
+  position: relative;
+}
+
+.menu-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mint);
+}
+
+.menu-dot.wrong {
+  background: var(--warn);
+}
+
+@media (max-width: 900px) {
+  /* Bar shows only the logo and the menu button; links and wallet live in the full-screen menu. */
+  .nav-links,
+  .nav-wallet {
+    display: none !important;
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 0 var(--gutter) calc(24px + env(safe-area-inset-bottom));
+    background: var(--canvas);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    animation: menu-in 0.18s ease-out;
+  }
+
+  .mobile-menu-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 0 var(--gutter);
+  }
+
+  .menu-close {
+    display: inline-block;
+    font-size: 16px;
+  }
+
+  .mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-menu-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 60px;
+    border-bottom: 1px solid var(--border-moss);
+    font-size: 24px;
+    font-weight: 330;
+    letter-spacing: 0.01em;
+    color: #ffffff;
+    text-decoration: none;
+  }
+
+  .mobile-menu-links a span {
+    font-size: 18px;
+    color: var(--text-faint);
+  }
+
+  .mobile-menu-links a.active {
+    color: var(--mint);
+  }
+
+  .mobile-menu-links a.active span {
+    color: var(--mint);
+  }
+
+  .mobile-menu-wallet {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface-1);
+  }
+
+  .mobile-menu-wallet .btn-small {
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  .mobile-menu-foot {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+  }
+
+  .mobile-menu-foot .net-pill {
+    display: inline-flex;
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu {
+    animation: none;
   }
 }

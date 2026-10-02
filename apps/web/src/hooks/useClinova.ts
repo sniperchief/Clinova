@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import type { Hex } from 'viem'
-import { useConnection, usePublicClient } from 'wagmi'
+import { useAccount, usePublicClient } from 'wagmi'
 import { CLINOVA_CHAIN } from '../config/contracts'
 import {
   fetchAccount,
@@ -71,7 +71,7 @@ export function useProviders() {
 /** State of the connected wallet: balances, allowances, escrow credit, roles and its provider record. */
 export function useAccountState() {
   const client = useClient()
-  const { address } = useConnection()
+  const { address } = useAccount()
   return useQuery({
     queryKey: [QK, 'account', address],
     queryFn: () => fetchAccount(client, address!),
@@ -82,7 +82,7 @@ export function useAccountState() {
 
 /** Eligibility of the connected wallet for a service type, per the registry's rule. */
 export function useSelfEligibility() {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const providers = useProviders().data
   return useMemo(() => {
     const me = providers?.find((p) => sameAddress(p.address, address))
@@ -106,6 +106,6 @@ export function useIsVerifier() {
 }
 
 export function useWrongNetwork() {
-  const { isConnected, chainId } = useConnection()
+  const { isConnected, chainId } = useAccount()
   return isConnected && chainId !== CLINOVA_CHAIN.id
 }

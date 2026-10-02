@@ -79,9 +79,9 @@ export function Discover() {
     <div className="container page discover">
       <header className="disc-head">
         <span className="eyebrow">Discover</span>
-        <h1>Diagnostic capacity on the network</h1>
+        <h1>Verified healthcare capacity on the network</h1>
         <p>
-          Every provider here has registered and staked USDC on Clinova. Availability, services, stake and performance are
+          Real-world diagnostic capacity contributed by physical providers. Every provider here has registered and staked USDC on Clinova. Availability, services, stake and performance are
           read live from the protocol contracts on Arbitrum.
         </p>
       </header>

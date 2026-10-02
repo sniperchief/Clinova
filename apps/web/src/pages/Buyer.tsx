@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatEther } from 'viem'
-import { useConnection } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { DashHeader, HowItWorks, JobList, MetricStrip, Panel, Tabs } from '../components/Dashboard'
 import { TxButton } from '../components/Tx'
 import { LoadError, Skeleton, Usdc } from '../components/ui'
@@ -22,7 +22,7 @@ const HOW_IT_WORKS: [string, string][] = [
 type Tab = 'attention' | 'active' | 'completed' | 'all'
 
 export function Buyer() {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const requests = useRequests()
   const account = useAccountState().data
   const now = useNow()
@@ -41,7 +41,7 @@ export function Buyer() {
             <span className="eyebrow">Healthcare businesses</span>
             <h1 className="intro-title">Diagnostics on demand, paid only when delivered.</h1>
             <p className="intro-text">
-              Reserve tests from verified labs and clinics across the network. Your USDC stays in escrow until you confirm
+              Extend your telemedicine platform or healthcare application into real-world diagnostics. Reserve tests from verified labs and clinics across the network — your USDC stays in escrow until you confirm
               the service or an authorized verifier approves the proof.
             </p>
             <div className="panel connect-panel">

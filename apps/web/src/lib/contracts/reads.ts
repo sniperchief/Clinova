@@ -147,7 +147,9 @@ export interface ClinovaEvent {
   logIndex: number
 }
 
-const LOG_CHUNK = 2_000_000n
+// The public Arbitrum Sepolia RPC allows at most 100,000 blocks per eth_getLogs (inclusive range).
+const LOG_CHUNK = 99_999n
+const LOG_PARALLEL = 5
 let logCache: { client: PublicClient; toBlock: bigint; events: ClinovaEvent[] } | null = null
 
 async function getLogsChunked(client: PublicClient, fromBlock: bigint, toBlock: bigint): Promise<Log[]> {
@@ -155,12 +157,16 @@ async function getLogsChunked(client: PublicClient, fromBlock: bigint, toBlock: 
   try {
     return await client.getLogs({ address, fromBlock, toBlock })
   } catch (err) {
-    // Some RPCs cap the block range. Fall back to fixed-size chunks.
+    // Some RPCs cap the block range. Fall back to fixed-size chunks, a few at a time, kept in block order.
     if (toBlock - fromBlock <= LOG_CHUNK) throw err
+    const ranges: [bigint, bigint][] = []
+    for (let start = fromBlock; start <= toBlock; start += LOG_CHUNK + 1n)
+      ranges.push([start, start + LOG_CHUNK > toBlock ? toBlock : start + LOG_CHUNK])
     const logs: Log[] = []
-    for (let start = fromBlock; start <= toBlock; start += LOG_CHUNK + 1n) {
-      const end = start + LOG_CHUNK > toBlock ? toBlock : start + LOG_CHUNK
-      logs.push(...(await client.getLogs({ address, fromBlock: start, toBlock: end })))
+    for (let i = 0; i < ranges.length; i += LOG_PARALLEL) {
+      const batch = ranges.slice(i, i + LOG_PARALLEL)
+      const results = await Promise.all(batch.map(([from, to]) => client.getLogs({ address, fromBlock: from, toBlock: to })))
+      for (const r of results) logs.push(...r)
     }
     return logs
   }

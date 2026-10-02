@@ -185,15 +185,21 @@ async function main() {
 
   // Landing with live chain data
   await go('/')
-  await see('Healthcare capacity')
+  await see('Real-World Healthcare Infrastructure Layer')
   await waitFor(async () => (await page.locator('.live-panel .feed li').count()) >= 3, 'live activity feed')
   await shot('01-landing')
   step('landing page renders live network data and onchain activity from the fork')
 
   // Connect wallet
   await go('/provider')
-  await page.locator('.nav').getByRole('button', { name: 'Connect wallet' }).click()
-  await click('Browser wallet')
+  // RainbowKit may auto-connect the injected shim; otherwise connect through its picker.
+  const onboarding = page.getByText('Become a Clinova provider').first()
+  const connectBtn = page.locator('.nav').getByRole('button', { name: 'Connect wallet' })
+  await onboarding.or(connectBtn).first().waitFor({ state: 'visible' })
+  if (!(await onboarding.isVisible())) {
+    await connectBtn.click()
+    await click('Browser wallet')
+  }
   await see('Become a Clinova provider')
   await see(`Minimum ${usdcText(minStake)} USDC, read from the ProviderRegistry contract`)
   step('wallet connects; provider onboarding reads minStake from the contract')

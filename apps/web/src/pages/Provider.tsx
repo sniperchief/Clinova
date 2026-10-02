@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Hex } from 'viem'
-import { useConnection } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { REGIONS, SERVICE_TYPES } from '../config/catalog'
 import { DashHeader, HowItWorks, JobList, MetricStrip, Panel, SetupTracker, Tabs } from '../components/Dashboard'
 import { StepCard, TxButton } from '../components/Tx'
@@ -18,7 +18,7 @@ import { saveProfile } from '../lib/localRecords'
 import { monogram, providerAvailability, providerLabel } from '../lib/providerLabel'
 
 export function Provider() {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const account = useAccountState()
   const protocol = useProtocol().data
 
@@ -54,10 +54,10 @@ function Welcome() {
     <div className="intro-grid">
       <div>
         <span className="eyebrow">Providers</span>
-        <h1 className="intro-title">Turn spare diagnostic capacity into revenue.</h1>
+        <h1 className="intro-title">Contribute your diagnostic capacity to the network.</h1>
         <p className="intro-text">
           Labs and clinics join Clinova by staking {minStake !== undefined ? usdc(minStake) : 'USDC'}, get verified, and
-          then receive paid requests from healthcare businesses — settled in USDC when the work is accepted.
+          then receive paid requests from telemedicine platforms and healthcare applications — settled in USDC when the work is accepted, with every outcome building your portable onchain reputation.
         </p>
         <div className="panel connect-panel">
           <h3>Connect your organisation’s wallet</h3>
@@ -255,7 +255,7 @@ function Onboarding({ account, protocol }: { account: AccountState; protocol: Pr
 type JobTab = 'available' | 'active' | 'history'
 
 function Dashboard({ account, protocol }: { account: AccountState; protocol: ProtocolState }) {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const providers = useProviders().data
   const requests = useRequests().data
   const now = useNow()

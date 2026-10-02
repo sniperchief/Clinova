@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
-import { useConnection } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { RequestStatusBadge, RequestTimeline } from '../components/Request'
 import { EvidenceCheck, RequestActions } from '../components/RequestActions'
 import { Addr, Empty, Hash, LoadError, RegionName, ServiceName, Skeleton, TxLink, Usdc } from '../components/ui'
@@ -21,7 +21,7 @@ const ROLE_TEXT = {
 export function RequestDetail() {
   const { id: idParam } = useParams()
   const id = idParam && /^\d+$/.test(idParam) ? BigInt(idParam) : null
-  const { address } = useConnection()
+  const { address } = useAccount()
   const request = useRequest(id)
   const events = useEvents().data
   const account = useAccountState().data
