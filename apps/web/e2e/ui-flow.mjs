@@ -229,7 +229,7 @@ async function main() {
   await as(PROVIDER)
   await go('/provider')
   await click('Activate', { exact: true })
-  await see('Verified · accepting requests')
+  await page.locator('.dash-head .pill', { hasText: 'Accepting requests' }).waitFor()
   step('provider activates')
 
   // Buyer discovers and creates a request
@@ -273,11 +273,11 @@ async function main() {
   // Provider withdraws, reputation updated
   await as(PROVIDER)
   await go('/provider')
-  await page.locator('.banner', { hasText: 'ready to withdraw' }).waitFor()
+  await page.locator('.callout', { hasText: 'Earnings ready' }).waitFor()
   const before = await pub.readContract({ address: USDC, abi: erc20Abi, functionName: 'balanceOf', args: [PROVIDER] })
   await click('Withdraw earnings')
   await waitFor(async () => (await pub.readContract({ address: USDC, abi: erc20Abi, functionName: 'balanceOf', args: [PROVIDER] })) === before + 25_000_000n, 'withdrawal')
-  await page.locator('.banner', { hasText: 'ready to withdraw' }).waitFor({ state: 'hidden' })
+  await page.locator('.callout', { hasText: 'Earnings ready' }).waitFor({ state: 'hidden' })
   await shot('09-provider-dashboard')
   step('provider withdraws exactly 25 USDC; dashboard updates')
 
