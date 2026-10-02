@@ -17,7 +17,7 @@ import { downloadJson, loadEvidence, saveEvidence, saveReason } from '../lib/loc
 import { formatDateTime, usdc } from '../lib/format'
 import { TxButton } from './Tx'
 import { Hash } from './ui'
-import { useConnection } from 'wagmi'
+import { useAccount } from 'wagmi'
 
 const SIMPLE: Partial<Record<ActionId, { label: string; help: string; variant?: 'primary' | 'ghost' | 'danger'; confirm?: string }>> = {
   cancel: {
@@ -85,7 +85,7 @@ const callFor = (id: ActionId, requestId: bigint) => {
 }
 
 export function RequestActions({ rec }: { rec: RequestRecord }) {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const account = useAccountState().data
   const protocol = useProtocol().data
   const isEligible = useSelfEligibility()

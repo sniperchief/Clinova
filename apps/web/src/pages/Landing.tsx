@@ -6,12 +6,86 @@ import { recentActivity } from '../lib/activity'
 import { addressUrl, formatUsdc, shortAddress } from '../lib/format'
 
 const FLOW = [
-  ['DISCOVER', 'Find verified diagnostic capacity by service and area.'],
-  ['RESERVE', 'Request a service from one provider or the whole network.'],
-  ['ESCROW', 'Payment is secured onchain in USDC before work begins.'],
-  ['VERIFY', 'Proof of service is reviewed by the buyer or an authorized verifier.'],
-  ['SETTLE', 'USDC is released or refunded according to protocol rules.'],
-  ['REPUTATION', 'Every outcome becomes part of the provider’s public record.'],
+  ['DISCOVER', 'Find verified healthcare providers with the required capability.'],
+  ['RESERVE', 'Request and secure available diagnostic capacity.'],
+  ['ESCROW', 'Lock payment through Clinova’s smart contracts.'],
+  ['VERIFY', 'Confirm completion using proof of service.'],
+  ['SETTLE', 'Release payment according to the protocol rules.'],
+  ['REPUTATION', 'Record provider performance onchain.'],
+]
+
+/** The layered model: applications on top, real-world capacity underneath, protocol guarantees at the base. */
+const STACK = [
+  ['Telemedicine & healthcare applications', 'Digital consultations and care platforms'],
+  ['Clinova infrastructure', 'Onchain coordination layer on Arbitrum'],
+  ['Verified real-world healthcare capacity', 'Staked, verified laboratories and clinics'],
+  ['Diagnostics & laboratory services', 'Physical tests performed by providers'],
+  ['Verification · Escrow · Settlement · Reputation', 'Enforced by the protocol contracts'],
+]
+
+const ONCHAIN = [
+  'Provider registration and verification status',
+  'Service requests',
+  'Escrow',
+  'Proof-of-service commitments',
+  'Settlement',
+  'Provider reputation',
+]
+
+const OFFCHAIN = [
+  'Patient names',
+  'Patient medical records',
+  'Diagnostic results',
+  'Private provider documents',
+  'Sensitive healthcare information',
+]
+
+const JOURNEY = [
+  'Patient needs a test',
+  'Telemedicine platform requests capacity',
+  'Clinova discovers verified providers',
+  'Provider accepts',
+  'Payment enters escrow',
+  'Service is completed',
+  'Proof is verified',
+  'Provider is paid',
+]
+
+const WHY_ONCHAIN = [
+  ['Verifiable provider commitments', 'Independent providers can commit to service requests through a shared protocol.'],
+  ['Programmable escrow', 'Payment can be locked until predefined service conditions are met.'],
+  [
+    'Proof of service',
+    'Completion can be represented through verifiable onchain commitments without putting sensitive medical information onchain.',
+  ],
+  ['Transparent settlement', 'The protocol records how funds move between participants.'],
+  [
+    'Portable reputation',
+    'Provider performance can accumulate at the protocol level rather than remaining trapped inside one marketplace.',
+  ],
+]
+
+const DEPIN = [
+  ['Physical providers', 'contribute capacity', 'Labs and clinics stake, get verified and publish the services they perform.'],
+  ['Clinova network', 'coordinates capacity', 'Discovery, commitments, verification, settlement and reputation.'],
+  ['Healthcare applications', 'consume capacity', 'Telemedicine and digital health platforms reserve and pay for services.'],
+]
+
+const AUDIENCES = [
+  ['Telemedicine Platforms', 'Extend digital consultations into real-world diagnostics.', '/buyer', 'Reserve diagnostics →'],
+  [
+    'Healthcare Applications',
+    'Access distributed diagnostic capacity without building physical infrastructure.',
+    '/discover',
+    'Explore capacity →',
+  ],
+  [
+    'Hospitals & Clinic Networks',
+    'Make available capacity accessible to external healthcare applications.',
+    '/provider',
+    'Contribute capacity →',
+  ],
+  ['Diagnostic Providers', 'Monetize unused capacity and build portable onchain reputation.', '/provider', 'Become a provider →'],
 ]
 
 function LiveNetwork() {
@@ -70,16 +144,13 @@ function LiveNetwork() {
   )
 }
 
-/** Full-bleed 3:2 photo at the top of a content card. Illustrative stock photography, not Clinova participants. */
-function RoleMedia({ name, alt }: { name: string; alt: string }) {
-  return (
-    <picture className="media-card-img">
-      <source type="image/webp" media="(max-width: 640px)" srcSet={`/media/${name}-720.webp`} />
-      <source type="image/webp" srcSet={`/media/${name}-1200.webp`} />
-      <img src={`/media/${name}.jpg`} alt={alt} loading="lazy" width={1200} height={800} />
-    </picture>
-  )
-}
+const DataList = ({ items }: { items: string[] }) => (
+  <ul className="muted" style={{ paddingLeft: 18, margin: '12px 0 0', lineHeight: 1.8 }}>
+    {items.map((i) => (
+      <li key={i}>{i}</li>
+    ))}
+  </ul>
+)
 
 export function Landing() {
   return (
@@ -93,20 +164,20 @@ export function Landing() {
         <div className="hero-shade" aria-hidden />
         <div className="container hero-content">
           <div className="hero-copy">
-            <span className="eyebrow">Clinova Testnet · Arbitrum Sepolia</span>
-            <h1>
-              Healthcare capacity, <span className="mint">connected.</span>
+            <span className="eyebrow">DePIN · RWA infrastructure for telemedicine</span>
+            <h1 className="hero-title">
+              The <span className="mint">Real-World Healthcare Infrastructure Layer</span> for Telemedicine
             </h1>
             <p className="lede">
-              Clinova lets healthcare businesses discover, reserve, verify and pay for diagnostic capacity across a
-              distributed network of independent labs and clinics.
+              Clinova connects telemedicine platforms and healthcare applications to verified diagnostic capacity across a
+              distributed network of physical healthcare providers.
             </p>
             <div className="row" style={{ gap: 16 }}>
               <Link to="/discover" className="btn btn-primary">
-                Launch Clinova
+                Explore Healthcare Capacity
               </Link>
               <a href="#how" className="btn btn-ghost">
-                How it works
+                See How Clinova Works
               </a>
             </div>
           </div>
@@ -119,31 +190,46 @@ export function Landing() {
       </div>
 
       <section className="band">
-        <div className="container problem-grid">
-          <div>
-            <span className="eyebrow">The problem</span>
-            <h2>
-              Diagnostic capacity exists. <span className="mint">Reliable access</span> to it doesn’t.
-            </h2>
-            <p className="intro">
-              Labs and clinics have equipment and staff that sit idle for part of every day. Meanwhile telemedicine
-              companies, insurers, hospitals and digital health platforms need tests done wherever their patients are —
-              and reaching each provider means a separate contract, manual coordination and slow reconciliation.
-            </p>
-            <p className="intro">
-              Clinova is a shared coordination layer between the two. Providers stake to join and are verified. Buyers
-              reserve capacity with payment held in escrow. Settlement follows a reviewed proof of service, and each
-              outcome is added to a public performance record that neither side can edit.
-            </p>
+        <div className="container">
+          <div className="problem-grid">
+            <div>
+              <span className="eyebrow">The thesis</span>
+              <h2>
+                Bringing <span className="mint">Real-World Healthcare Capacity</span> Onchain
+              </h2>
+              <p className="intro">
+                Healthcare infrastructure already exists in thousands of laboratories and clinics, but much of that capacity
+                is fragmented and difficult for digital healthcare platforms to access programmatically.
+              </p>
+              <p className="intro">
+                Clinova connects this physical infrastructure to an onchain coordination layer, allowing healthcare
+                applications to discover providers, reserve capacity, escrow payment, verify service, and settle
+                transactions.
+              </p>
+            </div>
+            <ol className="layer-stack" aria-label="How Clinova sits between applications and real-world capacity">
+              {STACK.map(([title, text], i) => (
+                <li key={title} className={i === 1 ? 'is-core' : undefined}>
+                  <strong>{title}</strong>
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ol>
           </div>
-          <figure className="media-asym">
-            <picture>
-              <source type="image/webp" media="(max-width: 640px)" srcSet="/media/capacity-720.webp" />
-              <source type="image/webp" srcSet="/media/capacity-1200.webp" />
-              <img src="/media/capacity.jpg" alt="A gloved lab technician holding a capped sample tube" loading="lazy" width={1200} height={1500} />
-            </picture>
-            <figcaption>Illustrative photography</figcaption>
-          </figure>
+          <div className="grid grid-2" style={{ marginTop: 56, gap: 24 }}>
+            <div className="card">
+              <span className="eyebrow">What goes onchain</span>
+              <DataList items={ONCHAIN} />
+            </div>
+            <div className="card">
+              <span className="eyebrow">What stays offchain</span>
+              <DataList items={OFFCHAIN} />
+            </div>
+          </div>
+          <p className="notice" style={{ marginTop: 24, maxWidth: 820 }}>
+            Evidence stays with the provider; only a salted cryptographic commitment to it is recorded. Clinova never puts
+            patient information onchain.
+          </p>
         </div>
       </section>
 
@@ -151,28 +237,50 @@ export function Landing() {
         <div className="container">
           <div className="how-head">
             <div>
-              <span className="eyebrow">How it works</span>
-              <h2>From request to settlement, with a shared record at every step.</h2>
+              <span className="eyebrow">The telemedicine use case</span>
+              <h2>Built for the Next Generation of Telemedicine</h2>
               <p className="intro">
-                Each step below is a transaction on Arbitrum that buyer, provider and verifier can all inspect. The sample,
-                the evidence and any results stay with the provider — only payment, status and a salted commitment are
-                recorded.
+                A telemedicine platform can connect a patient with a doctor in minutes. But when that patient needs a blood
+                test, imaging, or another physical diagnostic service, the digital experience often stops.
+              </p>
+              <p className="intro">
+                Clinova provides the infrastructure layer that connects the digital healthcare experience to real-world
+                diagnostic capacity.
               </p>
             </div>
             <figure className="media-frame">
               <picture>
-                <source type="image/webp" media="(max-width: 640px)" srcSet="/media/collection-800.webp" />
-                <source type="image/webp" srcSet="/media/collection-1600.webp" />
+                <source type="image/webp" media="(max-width: 640px)" srcSet="/media/role-buyer-720.webp" />
+                <source type="image/webp" srcSet="/media/role-buyer-1200.webp" />
                 <img
-                  src="/media/collection.jpg"
-                  alt="A gloved hand holding two capped sample tubes"
+                  src="/media/role-buyer.jpg"
+                  alt="A doctor at a desk ordering tests on a computer"
                   loading="lazy"
-                  width={1600}
-                  height={1000}
+                  width={1200}
+                  height={800}
                 />
               </picture>
             </figure>
           </div>
+          <ol className="journey">
+            {JOURNEY.map((step, i) => (
+              <li key={step}>
+                <span className="n">0{i + 1}</span>
+                {step}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="band">
+        <div className="container">
+          <span className="eyebrow">How it works</span>
+          <h2>Discover → Reserve → Escrow → Verify → Settle → Reputation</h2>
+          <p className="intro">
+            Each step is a transaction on Arbitrum that the healthcare business, the provider and the verifier can all
+            inspect.
+          </p>
           <div className="flow">
             {FLOW.map(([title, text], i) => (
               <div key={title}>
@@ -187,76 +295,81 @@ export function Landing() {
 
       <section className="band">
         <div className="container">
-          <span className="eyebrow">Who it’s for</span>
-          <h2>Three roles, one workflow.</h2>
-          <div className="grid grid-3" style={{ marginTop: 48 }}>
-            <Link to="/buyer" className="card card-link media-card">
-              <RoleMedia name="role-buyer" alt="A doctor at a desk ordering tests on a computer" />
-              <div className="media-card-body">
-                <span className="eyebrow">Healthcare businesses</span>
-                <h3>Reserve diagnostics on demand</h3>
-                <p className="muted" style={{ margin: 0 }}>
-                  Telemedicine, insurers, hospitals and platforms create requests, escrow USDC, confirm completion or open
-                  a dispute, and see settlement as it happens.
-                </p>
-                <span className="link">Open buyer dashboard →</span>
-              </div>
-            </Link>
-            <Link to="/provider" className="card card-link media-card">
-              <RoleMedia name="role-provider" alt="Two lab scientists working at a microscope bench" />
-              <div className="media-card-body">
-                <span className="eyebrow">Providers</span>
-                <h3>Turn spare capacity into revenue</h3>
-                <p className="muted" style={{ margin: 0 }}>
-                  Labs and clinics register, stake, get verified, publish the tests they offer, accept jobs, submit proof
-                  of service and withdraw earnings.
-                </p>
-                <span className="link">Become a provider →</span>
-              </div>
-            </Link>
-            <div className="card media-card">
-              <RoleMedia name="role-verifier" alt="A lab technician reviewing results on an analyzer screen" />
-              <div className="media-card-body">
-                <span className="eyebrow">Verifiers</span>
-                <h3>Review evidence, resolve disputes</h3>
-                <p className="muted" style={{ margin: 0 }}>
-                  A trusted verification role checks providers and proof of service, and resolves disputes. Verifiers can
-                  never review a request they are party to — the contracts enforce it.
-                </p>
-              </div>
-            </div>
-          </div>
+          <span className="eyebrow">DePIN</span>
+          <h2>A DePIN Network for Healthcare Capacity</h2>
+          <p className="intro">
+            Clinova applies the DePIN model to healthcare by connecting physical healthcare providers to a shared digital
+            coordination layer.
+          </p>
+          <p className="intro">
+            Providers contribute real-world service capacity. Healthcare applications consume that capacity. Clinova
+            coordinates discovery, commitments, verification, settlement, and reputation.
+          </p>
+          <ol className="depin">
+            {DEPIN.map(([title, verb, text], i) => (
+              <li key={title} className={i === 1 ? 'is-core' : undefined}>
+                <strong>{title}</strong>
+                <span className="mint">→ {verb}</span>
+                <p>{text}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
       <section className="band">
+        <div className="container problem-grid">
+          <div>
+            <span className="eyebrow">RWA</span>
+            <h2>Real-World Assets, Reimagined as Healthcare Capacity</h2>
+            <p className="intro">
+              Clinova does not put patient data onchain or attempt to tokenize medical records.
+            </p>
+            <p className="intro">
+              Instead, it connects blockchain infrastructure to the real-world physical capacity of healthcare providers —
+              laboratories, diagnostic equipment, testing availability, and service capacity.
+            </p>
+            <p className="rwa-line">
+              Real-world healthcare capacity <span className="mint">→</span> programmable digital infrastructure
+            </p>
+            <p className="notice" style={{ marginTop: 24 }}>
+              Clinova does not tokenize ownership of laboratories, equipment or other physical assets, and issues no token.
+              Payments are in USDC.
+            </p>
+          </div>
+          <figure className="media-asym">
+            <picture>
+              <source type="image/webp" media="(max-width: 640px)" srcSet="/media/capacity-720.webp" />
+              <source type="image/webp" srcSet="/media/capacity-1200.webp" />
+              <img src="/media/capacity.jpg" alt="A gloved lab technician holding a capped sample tube" loading="lazy" width={1200} height={1500} />
+            </picture>
+            <figcaption>Illustrative photography</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section className="band wash">
         <div className="container">
-          <span className="eyebrow">Trust and privacy</span>
-          <h2>What Clinova records — and what it deliberately doesn’t.</h2>
-          <div className="grid grid-2" style={{ marginTop: 48, gap: 24 }}>
-            <div className="card">
-              <h3>Onchain, on Arbitrum</h3>
-              <ul className="muted" style={{ paddingLeft: 18, margin: '12px 0 0', lineHeight: 1.8 }}>
-                <li>Request status, deadlines and the escrowed USDC amount</li>
-                <li>Provider stake, verification and the service codes it offers</li>
-                <li>A salted cryptographic commitment to the proof of service</li>
-                <li>Settlement, refunds and outcome counters for reputation</li>
-              </ul>
-            </div>
-            <div className="card">
-              <h3>Never onchain</h3>
-              <ul className="muted" style={{ paddingLeft: 18, margin: '12px 0 0', lineHeight: 1.8 }}>
-                <li>Patient names, contact details, diagnoses or results</li>
-                <li>Medical reports or the evidence itself — only its salted hash</li>
-                <li>Provider licences and identity documents</li>
-                <li>Free-text dispute reasons — only a salted reference</li>
-              </ul>
-            </div>
+          <span className="eyebrow">Why blockchain</span>
+          <h2>Why Onchain?</h2>
+          <p className="intro">
+            Escrow, proof of service, settlement and portable reputation need a shared coordination layer between
+            independent healthcare businesses that no single party controls.
+          </p>
+          <div className="grid grid-3 why-grid">
+            {WHY_ONCHAIN.map(([title, text]) => (
+              <div key={title} className="card">
+                <h3>{title}</h3>
+                <p className="muted" style={{ margin: '8px 0 0' }}>
+                  {text}
+                </p>
+              </div>
+            ))}
           </div>
           <p className="notice" style={{ marginTop: 24, maxWidth: 820 }}>
             The blockchain does not prove a medical service happened. Clinova records a commitment to the evidence, and
-            an authorized verification process — or the paying buyer — decides whether it supports completion. Clinova
-            does not provide medical advice or guarantee provider quality or availability.
+            an authorized verification process — or the paying healthcare business — decides whether it supports
+            completion. Clinova does not provide medical advice or guarantee provider quality or availability.
           </p>
           <div className="section">
             <div className="eyebrow" style={{ marginBottom: 12 }}>
@@ -286,6 +399,26 @@ export function Landing() {
         </div>
       </section>
 
+      <section className="band">
+        <div className="container">
+          <span className="eyebrow">Who it’s for</span>
+          <h2>Built for Healthcare Businesses</h2>
+          <p className="intro">
+            Clinova is B2B infrastructure. Healthcare businesses consume capacity, providers contribute it, and an
+            authorized verifier role reviews proof of service and resolves disputes.
+          </p>
+          <div className="grid grid-4" style={{ marginTop: 48 }}>
+            {AUDIENCES.map(([title, text, to, cta]) => (
+              <Link key={title} to={to} className="card card-link audience-card">
+                <h3>{title}</h3>
+                <p className="muted">{text}</p>
+                <span className="link">{cta}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="band" style={{ borderBottom: 'none', textAlign: 'center' }}>
         <div className="container">
           <h2 style={{ margin: '0 auto' }}>Try the full flow on testnet.</h2>
@@ -295,7 +428,7 @@ export function Landing() {
           </p>
           <div className="row" style={{ justifyContent: 'center', gap: 16 }}>
             <Link to="/discover" className="btn btn-primary">
-              Enter testnet
+              Explore Healthcare Capacity
             </Link>
             <Link to="/provider" className="btn btn-ghost">
               Become a provider

@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
 import type { Hex, TransactionReceipt } from 'viem'
-import { useConfig, useConnection, type Config } from 'wagmi'
+import { useConfig, useAccount, type Config } from 'wagmi'
 import { simulateContract, waitForTransactionReceipt, writeContract } from 'wagmi/actions'
 import { CLINOVA_CHAIN } from '../config/contracts'
 import { clinovaErrorsAbi } from '../lib/contracts/abis'
@@ -33,7 +33,7 @@ const write = writeContract as unknown as (c: Config, p: LooseParams) => Promise
 export function useTx() {
   const config = useConfig()
   const queryClient = useQueryClient()
-  const { address, chainId } = useConnection()
+  const { address, chainId } = useAccount()
   const [state, setState] = useState<TxState>({ phase: 'idle' })
 
   const run = useCallback(

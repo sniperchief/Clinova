@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { getAddress, isAddress, parseEventLogs, type Address, type Hex } from 'viem'
-import { useConnection } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { REGIONS, SERVICE_TYPES } from '../config/catalog'
 import { providerLabel } from '../lib/providerLabel'
 import { StepCard, TxButton } from '../components/Tx'
@@ -33,7 +33,7 @@ const MAX_SERVICE = 30 * 24 * HOUR
 export function NewRequest() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
-  const { address } = useConnection()
+  const { address } = useAccount()
   const protocol = useProtocol().data
   const providers = useProviders().data
   const account = useAccountState().data

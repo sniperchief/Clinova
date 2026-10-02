@@ -9,7 +9,7 @@ The web app in `apps/web` is the product interface to the deployed Clinova contr
 | Concern | Choice |
 |---|---|
 | Build / dev server | Vite 8, TypeScript 5.9 (strict), React 19 |
-| Wallet and chain | wagmi 3 + viem 2. Injected wallets via EIP-6963 discovery plus a generic injected fallback. No WalletConnect project ID needed. |
+| Wallet and chain | RainbowKit 2 (wallet picker, themed to Clinova) on wagmi 2 + viem 2. Browser-extension wallets work out of the box; mobile/QR wallets turn on when `VITE_WALLETCONNECT_PROJECT_ID` is set. |
 | Server state | TanStack Query (polls every 15 s; all queries are invalidated after every confirmed transaction) |
 | Routing | react-router 7 |
 | Styling | Plain CSS with design tokens (`src/index.css`), Inter Variable (self-hosted via `@fontsource-variable`) |
@@ -61,6 +61,23 @@ States shown to the user: *Checking with the contract*, *Waiting for wallet conf
 
 **Timelines and transaction links** come from contract events, so every step on a request page links to its real transaction on `https://sepolia.arbiscan.io`.
 
+## Positioning and landing narrative
+
+Clinova is presented as a **DePIN/RWA infrastructure layer for telemedicine**: physical providers contribute diagnostic capacity, healthcare applications consume it, and the protocol coordinates discovery, commitments, verification, settlement and reputation. It is B2B infrastructure, not a telemedicine app, a medical-records chain, a token or an insurance product.
+
+The landing page (`src/pages/Landing.tsx`) is ordered so the story lands in 10 / 30 / 60 seconds:
+
+1. Hero: "The Real-World Healthcare Infrastructure Layer for Telemedicine", with the live network strip.
+2. Thesis: real-world capacity onchain, the layered model (applications → Clinova → capacity → diagnostics → verification/escrow/settlement/reputation), and what goes onchain vs. what stays offchain.
+3. Telemedicine use case and the patient-to-payout journey (`#how`).
+4. Protocol workflow: Discover → Reserve → Escrow → Verify → Settle → Reputation.
+5. DePIN model (providers contribute → network coordinates → applications consume).
+6. RWA framing: capacity, not tokenized ownership of assets or patient data.
+7. Why onchain, with the proof-of-service disclaimer and the verified contract links.
+8. Audiences: telemedicine platforms, healthcare applications, hospitals and clinic networks, diagnostic providers.
+
+Copy must not claim that the blockchain proves a medical service happened, that any patient data is onchain, or that physical assets are tokenized.
+
 ## Data boundaries
 
 | Data | Where it lives | Notes |
@@ -87,11 +104,16 @@ npm run dev            # http://localhost:5173
 
 Production build: `npm run build` (output in `apps/web/dist`, a static site), preview with `npm run preview`. When hosting, rewrite unknown paths to `index.html` (client-side routing).
 
+### Deploying (Vercel)
+
+`apps/web/vercel.json` configures the build (`npm run build` → `dist`), the single-page-app fallback (every path serves `index.html`, so links like `/requests/6` survive a reload), long-lived caching for hashed assets, and basic security headers. In Vercel: import the GitHub repo, set **Root Directory** to `apps/web`, and deploy. Optionally set `VITE_ARB_SEPOLIA_RPC_URL` (see below). Any static host works the same way with an equivalent fallback rule.
+
 ### Environment variables
 
 | Variable | Required | Meaning |
 |---|---|---|
 | `VITE_ARB_SEPOLIA_RPC_URL` | No | RPC for reads. Default: public `https://sepolia-rollup.arbitrum.io/rpc`. Anything prefixed `VITE_` is **bundled into the browser and public** — never use a key with billing or write access. |
+| `VITE_WALLETCONNECT_PROJECT_ID` | No | WalletConnect (Reown) project ID from cloud.reown.com. Without it the wallet picker lists browser-extension wallets only; with it, mobile and QR-code wallets are added. Public; restrict its allowed domains in the Reown dashboard. |
 
 Copy `apps/web/.env.example` to `apps/web/.env.local` if needed. No secret is required to run the app.
 

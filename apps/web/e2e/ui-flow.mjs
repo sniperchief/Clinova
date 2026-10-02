@@ -185,15 +185,21 @@ async function main() {
 
   // Landing with live chain data
   await go('/')
-  await see('Healthcare capacity')
+  await see('Real-World Healthcare Infrastructure Layer')
   await waitFor(async () => (await page.locator('.live-panel .feed li').count()) >= 3, 'live activity feed')
   await shot('01-landing')
   step('landing page renders live network data and onchain activity from the fork')
 
   // Connect wallet
   await go('/provider')
-  await page.locator('.nav').getByRole('button', { name: 'Connect wallet' }).click()
-  await click('Browser wallet')
+  // RainbowKit may auto-connect the injected shim; otherwise connect through its picker.
+  const onboarding = page.getByText('Become a Clinova provider').first()
+  const connectBtn = page.locator('.nav').getByRole('button', { name: 'Connect wallet' })
+  await onboarding.or(connectBtn).first().waitFor({ state: 'visible' })
+  if (!(await onboarding.isVisible())) {
+    await connectBtn.click()
+    await click('Browser wallet')
+  }
   await see('Become a Clinova provider')
   await see(`Minimum ${usdcText(minStake)} USDC, read from the ProviderRegistry contract`)
   step('wallet connects; provider onboarding reads minStake from the contract')
@@ -229,7 +235,7 @@ async function main() {
   await as(PROVIDER)
   await go('/provider')
   await click('Activate', { exact: true })
-  await see('Verified · accepting requests')
+  await page.locator('.dash-head .pill', { hasText: 'Accepting requests' }).waitFor()
   step('provider activates')
 
   // Buyer discovers and creates a request
@@ -273,11 +279,11 @@ async function main() {
   // Provider withdraws, reputation updated
   await as(PROVIDER)
   await go('/provider')
-  await page.locator('.banner', { hasText: 'ready to withdraw' }).waitFor()
+  await page.locator('.callout', { hasText: 'Earnings ready' }).waitFor()
   const before = await pub.readContract({ address: USDC, abi: erc20Abi, functionName: 'balanceOf', args: [PROVIDER] })
   await click('Withdraw earnings')
   await waitFor(async () => (await pub.readContract({ address: USDC, abi: erc20Abi, functionName: 'balanceOf', args: [PROVIDER] })) === before + 25_000_000n, 'withdrawal')
-  await page.locator('.banner', { hasText: 'ready to withdraw' }).waitFor({ state: 'hidden' })
+  await page.locator('.callout', { hasText: 'Earnings ready' }).waitFor({ state: 'hidden' })
   await shot('09-provider-dashboard')
   step('provider withdraws exactly 25 USDC; dashboard updates')
 

@@ -1,97 +1,103 @@
 import { Link } from 'react-router-dom'
+import { getAddress } from 'viem'
+import { DEMO_DIRECTORY } from '../config/catalog'
 import type { ProviderView } from '../lib/contracts/reads'
-import type { ProviderRecord, Reputation } from '../lib/contracts/types'
-import { providerLabel } from '../lib/providerLabel'
-import { formatDateTime, nowSeconds } from '../lib/format'
-import { Addr, Badge, RegionName, ServiceName, Usdc } from './ui'
+import { loadProfile } from '../lib/localRecords'
+import { monogram, providerAvailability, providerLabel } from '../lib/providerLabel'
+import { addressUrl, shortAddress } from '../lib/format'
+import { RegionName, ServiceName, Usdc } from './ui'
 
-export function ProviderStatus({ record, minStake }: { record: ProviderRecord; minStake?: bigint }) {
-  if (!record.registered) return <Badge>Not registered</Badge>
-  if (record.unstakeAvailableAt > 0n)
-    return <Badge tone="warn">Unbonding until {formatDateTime(record.unstakeAvailableAt)}</Badge>
-  if (!record.verified) return <Badge tone="warn">Awaiting verification</Badge>
-  if (minStake !== undefined && record.stake < minStake) return <Badge tone="warn">Stake below minimum</Badge>
-  if (!record.active) return <Badge>Verified · not accepting requests</Badge>
-  return <Badge tone="ok">Verified · accepting requests</Badge>
-}
+const providerHasProfile = (p: ProviderView) => loadProfile(p.record.metadataHash) !== null
 
-export function ReputationPanel({ reputation, compact }: { reputation: Reputation; compact?: boolean }) {
-  const items: [string, bigint, string][] = [
-    ['Completed', reputation.completedJobs, 'Jobs where the provider submitted proof of service'],
-    ['Successful', reputation.successfulJobs, 'Jobs that settled with payment to the provider'],
-    ['Failed', reputation.failedJobs, 'Jobs where the provider was found at fault or missed its deadline'],
-    ['Disputed', reputation.disputes, 'Jobs that were contested. Not a fault count'],
-  ]
-  return (
-    <div className={`grid ${compact ? 'grid-4' : 'grid-4'}`} style={{ gap: compact ? 8 : 16 }}>
-      {items.map(([label, value, help]) => (
-        <div key={label} title={help} style={compact ? undefined : { padding: '4px 0' }}>
-          <div className="eyebrow" style={{ fontSize: 11 }}>
-            {label}
-          </div>
-          <div style={{ fontSize: compact ? 22 : 32, fontWeight: 330, fontVariantNumeric: 'tabular-nums' }}>
-            {value.toString()}
-          </div>
-          {!compact && <div className="faint" style={{ fontSize: 12 }}>{help}</div>}
-        </div>
-      ))}
-    </div>
-  )
-}
-
+/** Discover-page provider card. Everything shown is read from the registry and reputation contracts,
+ *  except the display name (offchain profile verified against its onchain hash, or a marked demo label). */
 export function ProviderCard({ provider, minStake }: { provider: ProviderView; minStake?: bigint }) {
   const { name, source } = providerLabel(provider)
-  const unbonding = provider.record.unstakeAvailableAt > 0n && provider.record.unstakeAvailableAt > nowSeconds()
+  const demo = DEMO_DIRECTORY[getAddress(provider.address)]
+  const availability = providerAvailability(provider.record, minStake)
   const canRequest = provider.capabilities.some((c) => provider.eligibleFor(c))
+  const initials = monogram(name)
+  const rep = provider.reputation
+  const perf: [string, bigint, string][] = [
+    ['Completed', rep.completedJobs, 'Jobs where the provider submitted proof of service'],
+    ['Successful', rep.successfulJobs, 'Jobs that settled with payment to the provider'],
+    ['Failed', rep.failedJobs, 'Jobs where the provider was found at fault or missed its deadline'],
+    ['Disputed', rep.disputes, 'Jobs that were contested — not a fault count'],
+  ]
   return (
-    <div className="card stack" style={{ gap: 14 }}>
-      <div className="spread" style={{ alignItems: 'flex-start' }}>
-        <div>
-          <h3 title={source}>{name ?? 'Unlabelled provider'}</h3>
-          <Addr address={provider.address} label={name ? undefined : null} />
+    <article className={`pcard ${canRequest ? '' : 'pcard-idle'}`}>
+      <header className="pcard-head">
+        <div className="pcard-avatar" aria-hidden>
+          {initials ?? <img src="/brand/favicon-48.png" alt="" width={22} height={22} />}
         </div>
-        <ProviderStatus record={provider.record} minStake={minStake} />
-      </div>
-      <dl className="kv">
-        <dt>Services</dt>
-        <dd className="row" style={{ gap: 6 }}>
-          {provider.capabilities.length === 0 ? (
-            <span className="faint">None listed</span>
-          ) : (
-            provider.capabilities.map((c) => (
-              <span key={c} className="chip">
-                <ServiceName hash={c} short />
+        <div className="pcard-id">
+          <h3 title={source}>
+            {name ?? 'Unlabelled provider'}
+            {demo && !providerHasProfile(provider) && (
+              <span className="chip demo" title={demo.note}>
+                demo
               </span>
-            ))
-          )}
-        </dd>
-        <dt>Service area</dt>
-        <dd>
-          <RegionName hash={provider.record.locationHash} />
-        </dd>
-        <dt>Stake</dt>
-        <dd>
-          <Usdc amount={provider.record.stake} />
-          {unbonding && <span className="faint"> · unbonding</span>}
-        </dd>
-        <dt>Active jobs</dt>
-        <dd>{provider.record.activeJobs}</dd>
-      </dl>
-      <div style={{ borderTop: '1px solid var(--border-moss)', paddingTop: 14 }}>
-        <div className="eyebrow" style={{ marginBottom: 8 }}>
-          Clinova performance
+            )}
+          </h3>
+          <a className="pcard-addr mono" href={addressUrl(provider.address)} target="_blank" rel="noreferrer" title={provider.address}>
+            {shortAddress(provider.address)} ↗
+          </a>
         </div>
-        <ReputationPanel reputation={provider.reputation} compact />
+        <span className={`pill pill-${availability.tone}`}>{availability.label}</span>
+      </header>
+
+      <div className="pcard-services">
+        {provider.capabilities.length === 0 ? (
+          <span className="faint">No services listed</span>
+        ) : (
+          provider.capabilities.map((c) => (
+            <span key={c} className="chip">
+              <ServiceName hash={c} short />
+            </span>
+          ))
+        )}
       </div>
-      {canRequest ? (
-        <Link className="btn btn-ghost" to={`/buyer/new?provider=${provider.address}`}>
-          Request a service
-        </Link>
-      ) : (
-        <span className="faint" style={{ fontSize: 13 }}>
-          Not currently accepting requests.
-        </span>
-      )}
-    </div>
+
+      <dl className="pcard-facts">
+        <div>
+          <dt>Service area</dt>
+          <dd>
+            <RegionName hash={provider.record.locationHash} />
+          </dd>
+        </div>
+        <div>
+          <dt>Stake</dt>
+          <dd>
+            <Usdc amount={provider.record.stake} />
+          </dd>
+        </div>
+        <div>
+          <dt>Active jobs</dt>
+          <dd>{provider.record.activeJobs}</dd>
+        </div>
+      </dl>
+
+      <div className="pcard-perf">
+        <div className="pcard-label">Performance on Clinova</div>
+        <dl>
+          {perf.map(([label, value, help]) => (
+            <div key={label} title={help}>
+              <dd>{value.toString()}</dd>
+              <dt>{label}</dt>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <footer className="pcard-foot">
+        {canRequest ? (
+          <Link className="btn btn-primary btn-block" to={`/buyer/new?provider=${provider.address}`}>
+            Request a service
+          </Link>
+        ) : (
+          <span className="pcard-unavailable">Not accepting new requests</span>
+        )}
+      </footer>
+    </article>
   )
 }

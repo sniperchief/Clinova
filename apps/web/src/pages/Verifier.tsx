@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useConnection } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { providerLabel } from '../lib/providerLabel'
 import { RequestStatusBadge } from '../components/Request'
 import { EvidenceCheck } from '../components/RequestActions'
@@ -14,7 +14,7 @@ import { isTerminal, ProofStatus, Status, type RequestRecord } from '../lib/cont
 import { formatDateTime, formatRelative, isZeroAddress, sameAddress } from '../lib/format'
 
 export function Verifier() {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const account = useAccountState()
 
   if (!address)
@@ -70,7 +70,7 @@ function Party({ rec, address }: { rec: RequestRecord; address?: string }) {
 }
 
 function VerifierBoard({ canReview, canVerifyProviders }: { canReview: boolean; canVerifyProviders: boolean }) {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const requests = useRequests().data
   const providers = useProviders().data
   const events = useEvents().data

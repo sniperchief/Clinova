@@ -1,51 +1,109 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { CONTRACT_LIST, EXPLORER_URL } from '../config/contracts'
 import { useIsVerifier, useProtocol, useWrongNetwork } from '../hooks/useClinova'
 import { addressUrl } from '../lib/format'
-import { WalletButton, WrongNetworkBanner } from './Wallet'
+import { useAccount } from 'wagmi'
+import { WalletButton, WalletPanel, WrongNetworkBanner } from './Wallet'
 
 /** Clinova logo (flask mark + wordmark), from public/brand. */
 export function Logo({ height = 26 }: { height?: number }) {
   return <img className="logo-img" src="/brand/clinova-logo-120.png" alt="Clinova" height={height} width={Math.round(height * 4.48)} />
 }
 
+const NAV_ITEMS = [
+  { to: '/discover', label: 'Discover' },
+  { to: '/buyer', label: 'Healthcare businesses' },
+  { to: '/provider', label: 'Providers' },
+]
+
 function Nav() {
   const isVerifier = useIsVerifier()
   const wrong = useWrongNetwork()
+  const { pathname } = useLocation()
+  const { isConnected } = useAccount()
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
+  const items = isVerifier ? [...NAV_ITEMS, { to: '/verifier', label: 'Verifier' }] : NAV_ITEMS
+
+  // Close the menu on navigation (derived-state pattern).
+  const [lastPath, setLastPath] = useState(pathname)
+  if (pathname !== lastPath) {
+    setLastPath(pathname)
+    setOpen(false)
+  }
+
+  // While the full-screen menu is open: lock page scroll and close on Escape.
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
   return (
     <header className="nav">
       <div className="container nav-inner">
         <Link to="/" className="logo" onClick={close} aria-label="Clinova home">
           <Logo />
         </Link>
-        <nav className={`nav-links ${open ? 'open' : ''}`} aria-label="Main">
-          <NavLink to="/discover" onClick={close}>
-            Discover
-          </NavLink>
-          <NavLink to="/buyer" onClick={close}>
-            Healthcare businesses
-          </NavLink>
-          <NavLink to="/provider" onClick={close}>
-            Providers
-          </NavLink>
-          {isVerifier && (
-            <NavLink to="/verifier" onClick={close}>
-              Verifier
+        <nav className="nav-links" aria-label="Main">
+          {items.map((i) => (
+            <NavLink key={i.to} to={i.to}>
+              {i.label}
             </NavLink>
-          )}
+          ))}
         </nav>
         <span className="spacer" />
         <div className="nav-right">
-          <span className={`net-pill ${wrong ? 'wrong' : ''}`}>Clinova Testnet · Arbitrum Sepolia</span>
-          <WalletButton />
-          <button type="button" className="menu-btn" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}>
-            ☰
+          <div className="nav-wallet">
+            <WalletButton />
+          </div>
+          <button
+            type="button"
+            className="menu-btn"
+            aria-label="Open menu"
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            onClick={() => setOpen(true)}
+          >
+            {isConnected && <span className={`menu-dot ${wrong ? 'wrong' : ''}`} aria-hidden />}☰
           </button>
         </div>
       </div>
+
+      {open &&
+        createPortal(
+        <div id="mobile-menu" className="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu">
+          <div className="mobile-menu-top">
+            <Link to="/" className="logo" onClick={close} aria-label="Clinova home">
+              <Logo />
+            </Link>
+            <button type="button" className="menu-btn menu-close" aria-label="Close menu" onClick={close}>
+              ✕
+            </button>
+          </div>
+          <nav className="mobile-menu-links" aria-label="Main">
+            {items.map((i) => (
+              <NavLink key={i.to} to={i.to} onClick={close}>
+                {i.label}
+                <span aria-hidden>→</span>
+              </NavLink>
+            ))}
+          </nav>
+          <section className="mobile-menu-wallet" aria-label="Wallet">
+            <div className="eyebrow">{isConnected ? 'Wallet' : 'Connect a wallet'}</div>
+            <WalletPanel onDone={close} />
+          </section>
+        </div>,
+          document.body,
+        )}
     </header>
   )
 }

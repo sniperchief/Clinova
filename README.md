@@ -1,6 +1,6 @@
 # Clinova
 
-> Clinova turns distributed healthcare diagnostic capacity into programmable infrastructure.
+> **The real-world healthcare infrastructure layer for telemedicine.** Clinova is a DePIN/RWA infrastructure network that connects telemedicine platforms and healthcare applications to verified real-world diagnostic capacity, turning that capacity into programmable infrastructure.
 
 **Status: Phase 7 (web app) complete, awaiting review.** All five contracts (`ProviderRegistry`, `ServiceMarketplace`, `ClinovaEscrow`, `ProofOfService`, `ReputationRegistry`) are implemented and tested: 414 tests (unit, scenario, fuzz, three invariant campaigns) plus 7 Arbitrum Sepolia fork tests against real Circle USDC; Slither and Aderyn reviewed. They are **not externally audited** and are **deployed on Arbitrum Sepolia testnet only** (see below). A web app for buyers, providers and verifiers runs against the deployed contracts (see [Web app](#web-app)). See [docs/security-review.md](docs/security-review.md) for findings and remaining risks.
 
@@ -26,6 +26,7 @@ Buyers fund a request in USDC escrow. A staked, verified provider accepts and pe
 - **Network layer (onchain):** provider registry and stake, request state machine, escrow, proof commitments, reputation.
 - **Incentives:** providers earn USDC per verified job. Stake and public reputation make reliable capacity more valuable than unreliable capacity.
 - **No token.** Payments are in USDC. Clinova coordinates real-world capacity; it does not issue a speculative asset.
+- **RWA framing:** the real-world asset is healthcare *capacity* (laboratories, diagnostic equipment, testing availability) made discoverable, reservable and payable onchain. Clinova does not tokenize ownership of labs or equipment, and it does not tokenize patient data or medical records.
 
 ## Why Arbitrum
 
