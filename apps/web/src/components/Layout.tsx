@@ -5,17 +5,9 @@ import { useIsVerifier, useProtocol, useWrongNetwork } from '../hooks/useClinova
 import { addressUrl } from '../lib/format'
 import { WalletButton, WrongNetworkBanner } from './Wallet'
 
-export function LogoMark() {
-  return (
-    <svg className="logo-mark" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M12 4v16M4 12h16" stroke="#36f4a4" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="12" cy="4" r="2" fill="#02090a" stroke="#36f4a4" strokeWidth="1.4" />
-      <circle cx="12" cy="20" r="2" fill="#02090a" stroke="#36f4a4" strokeWidth="1.4" />
-      <circle cx="4" cy="12" r="2" fill="#02090a" stroke="#36f4a4" strokeWidth="1.4" />
-      <circle cx="20" cy="12" r="2" fill="#02090a" stroke="#36f4a4" strokeWidth="1.4" />
-      <circle cx="12" cy="12" r="2.6" fill="#36f4a4" />
-    </svg>
-  )
+/** Clinova logo (flask mark + wordmark), from public/brand. */
+export function Logo({ height = 26 }: { height?: number }) {
+  return <img className="logo-img" src="/brand/clinova-logo-120.png" alt="Clinova" height={height} width={Math.round(height * 4.48)} />
 }
 
 function Nav() {
@@ -26,9 +18,8 @@ function Nav() {
   return (
     <header className="nav">
       <div className="container nav-inner">
-        <Link to="/" className="logo" onClick={close}>
-          <LogoMark />
-          Clinova
+        <Link to="/" className="logo" onClick={close} aria-label="Clinova home">
+          <Logo />
         </Link>
         <nav className={`nav-links ${open ? 'open' : ''}`} aria-label="Main">
           <NavLink to="/discover" onClick={close}>
@@ -84,8 +75,8 @@ function Footer() {
     <footer className="footer">
       <div className="container cols">
         <div>
-          <div className="logo" style={{ fontSize: 16, marginBottom: 12 }}>
-            <LogoMark /> Clinova
+          <div className="logo" style={{ marginBottom: 14 }}>
+            <Logo height={22} />
           </div>
           <p style={{ maxWidth: 460, margin: 0 }}>
             Testnet software on Arbitrum Sepolia; the contracts are not externally audited. Clinova coordinates access to

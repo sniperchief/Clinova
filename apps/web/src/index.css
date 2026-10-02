@@ -1602,3 +1602,13 @@ svg {
   font-size: 18px;
   line-height: 1;
 }
+
+.logo-img {
+  display: block;
+  height: 26px;
+  width: auto;
+}
+
+footer.footer .logo-img {
+  height: 22px;
+}
